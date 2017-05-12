@@ -3,6 +3,7 @@ from tkinter import *
 import random
 import time
 
+
 class Ball:
 
     def __init__(self, canvas, paddle, color):
@@ -21,8 +22,14 @@ class Ball:
         self.canvas_width = self.canvas.winfo_width()
         #print(self.canvas_width)
         self.hit_bottom = False
+        self.isMiss = False
+        self.canvas.bind_all('<space>', self.start)
+        self.x = 0
+        self.y = 0
 
-        self.canvas.bind_all('<Key>',self.turn_start)
+    def start(self,evt):
+        self.x = random.sample(range(-5,6),1)
+        self.y = 5
 
     def turn_start(self,evt):
         starts = [-1, -2, -3, -4]
@@ -30,16 +37,6 @@ class Ball:
         self.x = starts[0]
         self.y = starts[0]
 
-        '''
-        self.canvas.bind_all('<KeyPress-Up>', self.turn_up)
-        self.canvas.bind_all('<KeyPress-Down>', self.turn_down)
-
-    def turn_up(self, evt):
-        self.y = -9
-    def turn_down(self, evt):
-        self.y = 9
-        
-        '''
 
     def draw(self):
         self.canvas.move(self.id, self.x, self.y)
@@ -50,18 +47,14 @@ class Ball:
             self.y = 3
         if pos[3] >= self.canvas_height:
             self.hit_bottom = True
-            #self.y = -3
+            self.y = -3
         if pos[0] <= 0:
             self.x = 3
         if pos[2] >= self.canvas_width:
             self.x = -3
         if self.hit_paddle(pos) == True:
-            self.x =  paddle.x # paddle의 x 좌표
-            self.y = 0 # 공의 y 좌표는 0이어야 한다.
-            print('hit')
-        if self.hit_bottom == True:
-            print('miss')
-
+            self.y = -3
+            print('1')
 
     def hit_paddle(self,pos):
 
@@ -72,6 +65,21 @@ class Ball:
         return False
 
 
+    def winner(self, winner):
+        if self.isMiss == True:
+            return -1
+        elif self.hit_paddle() == True:
+            return 1
+        else:
+            return 0
+
+    def game_over(self):
+        pos = self.canvas.coords(self.id)
+        if pos[1] < 400 < pos[3] and self.isMiss == False and self.y > 0:
+            self.isMiss = True
+            print('-1')
+        elif pos[1] > 400 or pos[3] < 400:
+            self.isMiss = False
 
 class Paddle:
 
@@ -84,9 +92,6 @@ class Paddle:
         self.canvas_width = self.canvas.winfo_width()
         self.canvas.bind_all('<KeyPress-Left>',self.turn_left)
         self.canvas.bind_all('<KeyPress-Right>',self.turn_right)
-
-        self.canvas.bind_all('<KeyPress-Up>', self.turn_up)
-        self.canvas.bind_all('<KeyPress-Down>', self.turn_down)
 
     def draw(self):
         pos = self.canvas.coords(self.id)
@@ -103,14 +108,6 @@ class Paddle:
     def turn_right(self, evt):
         self.x = 9
 
-    def turn_up(self, evt):
-        self.y = -9
-        self.canvas.move(self.id, self.x, self.y)
-
-    def turn_down(self, evt):
-        self.y = 9
-        self.canvas.move(self.id, self.x, self.y)
-
 tk = Tk()
 tk.title("Game")
 tk.resizable(0, 0)
@@ -121,10 +118,14 @@ tk.update()
 paddle = Paddle(canvas,'white')
 ball = Ball(canvas, paddle, 'white')
 
-while 1:
 
+while 1:
     ball.draw()
     paddle.draw()
     tk.update_idletasks()
     tk.update()
-    time.sleep(0.02)
+    time.sleep(0.015)
+
+
+
+
