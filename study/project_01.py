@@ -12,7 +12,7 @@ import os
 
 def fetch_list_url():
 
-        params = []
+        params = []  
 
         for num in range(0, 20):
 
